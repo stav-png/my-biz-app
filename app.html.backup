@@ -1,0 +1,412 @@
+<div dir="rtl" id="app"><div style="padding:60px;text-align:center;color:#7a8794;font-family:sans-serif">טוען…</div></div>
+
+<style>
+  #app{
+    --ink:#13202b; --ink2:#1b2c3a; --line:#e3e7ec; --surface:#eef1f4; --card:#fff;
+    --txt:#1b2a36; --soft:#64727f; --brand:#11716e; --brand2:#15918c; --brand-soft:#e2f1f0;
+    --owe:#b45309; --owe-soft:#fbeedb; --paid:#0a7d54; --paid-soft:#e2f3ec; --work:#2563eb; --work-soft:#e6eefc;
+    --r:13px;
+    font-family:-apple-system,"Segoe UI","Helvetica Neue",Arial,sans-serif;
+    color:var(--txt); line-height:1.5; -webkit-font-smoothing:antialiased;
+  }
+  #app *{box-sizing:border-box;}
+  .num{font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace;font-variant-numeric:tabular-nums;}
+
+  .shell{display:flex;min-height:560px;background:var(--surface);
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:26px 26px;background-position:-1px -1px;border-radius:18px;overflow:hidden;border:1px solid var(--line);}
+
+  /* sidebar (right in RTL) */
+  .sidebar{width:208px;background:var(--ink);color:#cdd7df;flex-shrink:0;padding:16px 12px;display:flex;flex-direction:column;gap:3px;}
+  .brand{display:flex;align-items:center;gap:9px;padding:6px 8px 16px;border-bottom:1px solid #27384700;margin-bottom:8px;}
+  .brand .logo{width:30px;height:30px;border-radius:8px;background:linear-gradient(135deg,var(--brand2),var(--brand));display:grid;place-items:center;color:#fff;font-weight:800;flex-shrink:0;}
+  .brand .bn{font-weight:700;color:#fff;font-size:.95rem;line-height:1.2;}
+  .brand .bs{font-size:.66rem;color:#7d8c99;}
+  .nav{display:flex;align-items:center;gap:10px;padding:9px 11px;border-radius:10px;cursor:pointer;font-size:.88rem;color:#aebbc6;border:none;background:none;font-family:inherit;width:100%;text-align:right;}
+  .nav:hover{background:#1f3140;color:#fff;}
+  .nav.on{background:var(--brand);color:#fff;font-weight:600;}
+  .nav svg{width:17px;height:17px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:1.7;}
+  .nav .cnt{margin-inline-start:auto;font-size:.7rem;background:#27384a;color:#9fb0bd;border-radius:20px;padding:1px 7px;}
+  .nav.on .cnt{background:#0c4f4d;color:#bfe7e4;}
+
+  .mainwrap{flex:1;display:flex;flex-direction:column;min-width:0;}
+  .topbar{display:flex;align-items:center;gap:10px;padding:13px 18px;background:var(--card);border-bottom:1px solid var(--line);}
+  .topbar h2{margin:0;font-size:1.08rem;letter-spacing:-.01em;}
+  .topbar .sp{flex:1;}
+  .iconbtn{display:none;background:none;border:1px solid var(--line);border-radius:9px;padding:7px;cursor:pointer;}
+  .iconbtn svg{width:18px;height:18px;stroke:var(--txt);fill:none;stroke-width:2;display:block;}
+  .qadd{position:relative;}
+  .main{padding:18px;overflow:auto;flex:1;}
+
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:11px;margin-bottom:16px;}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;position:relative;overflow:hidden;}
+  .stat .label{font-size:.72rem;color:var(--soft);margin-bottom:5px;}
+  .stat .val{font-size:1.3rem;font-weight:700;letter-spacing:-.02em;}
+  .stat .ic{position:absolute;left:12px;top:12px;opacity:.13;}
+  .stat .ic svg{width:34px;height:34px;}
+  .stat.owe{border-inline-start:3px solid var(--owe);} .stat.owe .val{color:var(--owe);}
+  .stat.pay{border-inline-start:3px solid var(--work);} .stat.pay .val{color:var(--work);}
+  .stat.vat{border-inline-start:3px solid var(--brand);} .stat.vat .val{color:var(--brand);}
+  .stat.in{border-inline-start:3px solid var(--paid);} .stat.in .val{color:var(--paid);}
+
+  .panel{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:15px;margin-bottom:14px;}
+  .panel h3{margin:0 0 12px;font-size:.96rem;display:flex;align-items:center;gap:7px;}
+  .panel h3 .dot{width:7px;height:7px;border-radius:50%;background:var(--brand);}
+  .grid2{display:grid;grid-template-columns:1.3fr 1fr;gap:14px;}
+  @media(max-width:680px){.grid2{grid-template-columns:1fr;}}
+
+  .insight{display:flex;gap:10px;align-items:flex-start;padding:9px 0;border-bottom:1px solid var(--line);font-size:.85rem;}
+  .insight:last-child{border:0;}
+  .insight .b{width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex-shrink:0;}
+  .insight .b svg{width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2;}
+
+  .search{display:flex;align-items:center;gap:8px;background:var(--card);border:1px solid var(--line);border-radius:10px;padding:8px 11px;margin-bottom:13px;}
+  .search svg{width:16px;height:16px;stroke:var(--soft);fill:none;stroke-width:2;flex-shrink:0;}
+  .search input{border:0;outline:0;font-family:inherit;font-size:.9rem;width:100%;background:none;color:var(--txt);}
+
+  .btn{font-family:inherit;cursor:pointer;border-radius:10px;border:none;padding:9px 14px;font-size:.88rem;font-weight:600;}
+  .btn.primary{background:var(--brand);color:#fff;} .btn.primary:hover{background:var(--brand2);}
+  .btn.ghost{background:var(--card);color:var(--txt);border:1px solid var(--line);} .btn.ghost:hover{border-color:var(--soft);}
+  .btn.sm{padding:6px 10px;font-size:.78rem;font-weight:500;} .btn.full{width:100%;}
+
+  .row{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:13px 14px;margin-bottom:9px;}
+  .row .top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+  .row .who{font-weight:700;font-size:.98rem;} .row .sub{font-size:.77rem;color:var(--soft);margin-top:2px;}
+  .pill{font-size:.68rem;padding:3px 9px;border-radius:20px;white-space:nowrap;font-weight:600;}
+  .pill.quote{background:#eef0f2;color:var(--soft);} .pill.work{background:var(--work-soft);color:var(--work);} .pill.done{background:var(--paid-soft);color:var(--paid);}
+  .pill.late{background:var(--owe-soft);color:var(--owe);}
+  .money{display:flex;justify-content:space-between;font-size:.83rem;margin-top:10px;align-items:center;}
+  .money .o{color:var(--owe);font-weight:700;} .money .c{color:var(--paid);font-weight:700;}
+  .bar{height:6px;background:#edf0f2;border-radius:5px;overflow:hidden;margin-top:7px;} .bar>span{display:block;height:100%;background:var(--paid);transition:width .4s;}
+  .acts{display:flex;gap:6px;margin-top:11px;flex-wrap:wrap;}
+  .empty{text-align:center;color:var(--soft);padding:34px 12px;font-size:.88rem;}
+  .kv{display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--line);font-size:.85rem;} .kv:last-child{border:0;}
+  .mini{font-size:.77rem;color:var(--soft);}
+  .stars{color:#e0a800;letter-spacing:1px;} .rate{font-size:.78rem;color:var(--soft);margin-top:7px;font-style:italic;}
+  .cheap{background:var(--paid-soft);color:var(--paid);font-size:.66rem;font-weight:700;padding:2px 7px;border-radius:6px;}
+  .note{background:var(--owe-soft);border:1px solid #efd9b0;color:var(--owe);font-size:.76rem;padding:9px 12px;border-radius:10px;margin-bottom:13px;}
+  table.bk{width:100%;border-collapse:collapse;font-size:.82rem;} table.bk th,table.bk td{padding:7px 6px;border-bottom:1px solid var(--line);text-align:right;} table.bk th{color:var(--soft);font-size:.72rem;font-weight:600;}
+  textarea.exp{width:100%;height:120px;font-family:ui-monospace,monospace;font-size:.73rem;border:1px solid var(--line);border-radius:10px;padding:9px;}
+
+  .ov{position:fixed;inset:0;background:rgba(15,22,30,.5);display:flex;align-items:flex-start;justify-content:center;padding:22px 14px;z-index:60;overflow:auto;}
+  .modal{background:var(--card);border-radius:16px;padding:18px;max-width:460px;width:100%;animation:pop .15s ease;}
+  @keyframes pop{from{transform:translateY(8px);opacity:.6;}to{transform:none;opacity:1;}}
+  @media(prefers-reduced-motion:reduce){.modal{animation:none;}.bar>span{transition:none;}}
+  .modal h3{margin:0 0 14px;font-size:1.05rem;}
+  .field{margin-bottom:10px;} .field label{display:block;font-size:.74rem;color:var(--soft);margin-bottom:4px;}
+  .field input,.field select,.field textarea{width:100%;font-family:inherit;font-size:.92rem;padding:9px 10px;border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--txt);}
+  .field input:focus,.field select:focus,.field textarea:focus{outline:2px solid var(--brand);outline-offset:-1px;}
+  .lineitem{display:grid;grid-template-columns:1fr 56px 76px 24px;gap:6px;align-items:center;margin-bottom:6px;}
+  .lineitem input{padding:7px;font-size:.84rem;} .lineitem .x{background:none;border:none;color:var(--owe);font-size:1.1rem;cursor:pointer;}
+  .menu{position:absolute;top:46px;left:0;background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 30px rgba(20,30,40,.16);padding:6px;z-index:40;min-width:170px;}
+  .menu button{display:block;width:100%;text-align:right;background:none;border:0;font-family:inherit;font-size:.87rem;padding:9px 11px;border-radius:8px;cursor:pointer;color:var(--txt);} .menu button:hover{background:var(--surface);}
+  button:focus-visible,.nav:focus-visible{outline:2px solid var(--brand2);outline-offset:1px;}
+  .scrim{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:30;display:none;}
+  @media(max-width:780px){
+    .sidebar{position:fixed;inset-block:0;inset-inline-end:0;z-index:40;transform:translateX(100%);transition:transform .22s;height:100%;}
+    .sidebar.open{transform:none;} .scrim.show{display:block;}
+    .iconbtn{display:block;} .shell{min-height:520px;}
+  }
+</style>
+
+<script>
+(function(){
+  const I={ // tiny inline icons
+    dash:'<path d="M3 13h8V3H3zM13 21h8V3h-8zM3 21h8v-6H3z"/>',
+    jobs:'<path d="M4 4h16v4H4zM4 12h16M4 18h10"/>',
+    clients:'<circle cx="9" cy="8" r="3.2"/><path d="M3.5 20a5.5 5.5 0 0 1 11 0M16 11l2 2 4-4"/>',
+    suppliers:'<path d="M3 8l9-5 9 5-9 5z"/><path d="M3 8v8l9 5 9-5V8"/>',
+    purchases:'<circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2 3h3l2.5 13h11l2-8H6"/>',
+    debts:'<path d="M12 2v20M17 6H9.5a3 3 0 0 0 0 6h5a3 3 0 0 1 0 6H6"/>',
+    vat:'<path d="M19 5L5 19M7 7h.01M17 17h.01"/><circle cx="7" cy="7" r="2.4"/><circle cx="17" cy="17" r="2.4"/>',
+    workers:'<circle cx="12" cy="7" r="3.4"/><path d="M5 21a7 7 0 0 1 14 0"/>',
+    books:'<path d="M4 5a2 2 0 0 1 2-2h12v18H6a2 2 0 0 1-2-2zM8 7h7M8 11h7"/>',
+    settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+    plus:'<path d="M12 5v14M5 12h14"/>', search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/>',
+    menu:'<path d="M4 6h16M4 12h16M4 18h16"/>', alert:'<path d="M12 9v4M12 17h.01M10.3 3.9 2 18a2 2 0 0 0 1.7 3h16.6A2 2 0 0 0 22 18L13.7 3.9a2 2 0 0 0-3.4 0z"/>',
+    spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/>', coin:'<circle cx="12" cy="12" r="8"/><path d="M12 8v8M9.5 10h3.5a1.5 1.5 0 0 1 0 3H9.5"/>'
+  };
+  const KEY="biz:data:v3";
+  const root=document.getElementById("app");
+  let view="dash", navOpen=false;
+  let S={settings:{vat:18,biz:"העסק שלי"},clients:[],jobs:[],suppliers:[],prices:[],purchases:[],workers:[],work:[]};
+
+  const ils=n=>new Intl.NumberFormat("he-IL",{style:"currency",currency:"ILS",maximumFractionDigits:0}).format(n||0);
+  const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+  const esc=s=>(s==null?"":String(s)).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  const today=()=>new Date().toISOString().slice(0,10);
+  const mKey=d=>(d||"").slice(0,7);
+  const mLabel=m=>{const[y,mo]=m.split("-");return["ינו","פבר","מרץ","אפר","מאי","יונ","יול","אוג","ספט","אוק","נוב","דצמ"][+mo-1]+" "+y.slice(2);};
+  const daysSince=d=>d?Math.floor((Date.now()-new Date(d).getTime())/864e5):0;
+  const rate=()=>Number(S.settings.vat)||0, vatOf=n=>n*rate()/100;
+  const jTot=j=>(j.items||[]).reduce((s,i)=>s+(Number(i.qty)||0)*(Number(i.price)||0),0);
+  const jOwed=j=>Math.max(0,jTot(j)-(Number(j.received)||0));
+  const sName=id=>(S.suppliers.find(x=>x.id===id)||{}).name||"—";
+  const cName=id=>(S.clients.find(x=>x.id===id)||{}).name||"—";
+  const jTitle=id=>(S.jobs.find(x=>x.id===id)||{}).title||"";
+  const stars=n=>{n=Number(n)||0;return n?`<span class="stars">${"★".repeat(n)}${"☆".repeat(5-n)}</span>`:"";};
+  const pill=s=>s==="work"?'<span class="pill work">בעבודה</span>':s==="done"?'<span class="pill done">הסתיים</span>':'<span class="pill quote">הצעה</span>';
+
+  async function save(){try{await window.storage.set(KEY,JSON.stringify(S),false);}catch(e){console.error(e);}}
+  async function load(){try{const r=await window.storage.get(KEY,false);if(r&&r.value)S=Object.assign(S,JSON.parse(r.value));}catch(e){}}
+
+  function openForm(title,fields,onSave,init){
+    init=init||{};const ov=document.createElement("div");ov.className="ov";ov.dir="rtl";
+    const html=fields.map(f=>{const v=init[f.key]!=null?init[f.key]:(f.def!=null?f.def:"");
+      if(f.type==="select"){return `<div class="field"><label>${esc(f.label)}</label><select data-k="${f.key}">${f.options.map(o=>`<option value="${esc(o.v)}" ${String(o.v)===String(v)?"selected":""}>${esc(o.t)}</option>`).join("")}</select></div>`;}
+      if(f.type==="textarea")return `<div class="field"><label>${esc(f.label)}</label><textarea data-k="${f.key}" rows="2">${esc(v)}</textarea></div>`;
+      const t=f.type||"text";return `<div class="field"><label>${esc(f.label)}</label><input data-k="${f.key}" type="${t}" ${t==="number"?'step="any" min="0"':''} value="${esc(v)}" placeholder="${esc(f.ph||"")}"></div>`;}).join("");
+    ov.innerHTML=`<div class="modal"><h3>${esc(title)}</h3>${html}<button class="btn primary full" data-a="ok">שמירה</button><button class="btn ghost full" data-a="cx" style="margin-top:8px">ביטול</button></div>`;
+    root.appendChild(ov);ov.querySelector('[data-a="cx"]').onclick=()=>ov.remove();
+    ov.querySelector('[data-a="ok"]').onclick=()=>{const o={};ov.querySelectorAll("[data-k]").forEach(el=>o[el.dataset.k]=el.value.trim());const e=onSave(o);if(e){alert(e);return;}ov.remove();};
+    const f0=ov.querySelector("input,select,textarea");if(f0)f0.focus();
+  }
+
+  const NAV=[["dash","לוח בית","dash"],["jobs","עבודות","jobs"],["clients","לקוחות","clients"],["suppliers","ספקים","suppliers"],["purchases","רכש","purchases"],["debts","חייבים","debts"],["vat","מע״מ","vat"],["workers","עובדים","workers"],["books","לרו״ח","books"],["settings","הגדרות","settings"]];
+  const TITLES={dash:"לוח בית",jobs:"עבודות והצעות",clients:"לקוחות",suppliers:"ספקים ומחירים",purchases:"רכש והזמנות",debts:"חייבים לי",vat:"מע״מ",workers:"עובדים",books:"חומר לרואה חשבון",settings:"הגדרות"};
+  const counts=()=>({jobs:S.jobs.length,clients:S.clients.length,suppliers:S.suppliers.length,purchases:S.purchases.length,debts:S.jobs.filter(j=>jOwed(j)>0).length,workers:S.workers.length});
+
+  function render(){
+    const c=counts();
+    root.innerHTML=`<div class="scrim ${navOpen?"show":""}" id="scrim"></div>
+    <div class="shell">
+      <aside class="sidebar ${navOpen?"open":""}">
+        <div class="brand"><div class="logo">${esc((S.settings.biz||"ע")[0])}</div><div><div class="bn">${esc(S.settings.biz||"העסק שלי")}</div><div class="bs">ניהול עבודות בנייה</div></div></div>
+        ${NAV.map(n=>`<button class="nav ${view===n[0]?"on":""}" data-v="${n[0]}"><svg viewBox="0 0 24 24">${I[n[2]]}</svg><span>${n[1]}</span>${c[n[0]]?`<span class="cnt">${c[n[0]]}</span>`:""}</button>`).join("")}
+      </aside>
+      <div class="mainwrap">
+        <header class="topbar">
+          <button class="iconbtn" id="burger"><svg viewBox="0 0 24 24">${I.menu}</svg></button>
+          <h2>${TITLES[view]}</h2><div class="sp"></div>
+          <div class="qadd"><button class="btn primary" id="qbtn"><svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.4;vertical-align:-2px">${I.plus}</svg> חדש</button><div id="qmenu"></div></div>
+        </header>
+        <main class="main" id="view"></main>
+      </div>
+    </div>`;
+    root.querySelectorAll(".nav").forEach(b=>b.onclick=()=>{view=b.dataset.v;navOpen=false;render();});
+    root.querySelector("#burger").onclick=()=>{navOpen=!navOpen;render();};
+    root.querySelector("#scrim").onclick=()=>{navOpen=false;render();};
+    root.querySelector("#qbtn").onclick=quickMenu;
+    ({dash:vDash,jobs:vJobs,clients:vClients,suppliers:vSuppliers,purchases:vPurchases,debts:vDebts,vat:vVat,workers:vWorkers,books:vBooks,settings:vSettings}[view])();
+  }
+  const main=()=>root.querySelector("#view");
+
+  function quickMenu(){
+    const m=root.querySelector("#qmenu");
+    if(m.innerHTML){m.innerHTML="";return;}
+    m.innerHTML=`<div class="menu"><button data-q="job">+ הצעת מחיר</button><button data-q="client">+ לקוח</button><button data-q="supplier">+ ספק</button><button data-q="purchase">+ רכש</button><button data-q="worker">+ עובד</button></div>`;
+    m.querySelectorAll("[data-q]").forEach(b=>b.onclick=()=>{m.innerHTML="";({job:jobForm,client:addClient,supplier:addSupplier,purchase:addPurchase,worker:addWorker}[b.dataset.q])();});
+  }
+
+  /* ===== DASHBOARD ===== */
+  function vDash(){
+    const owedMe=S.jobs.reduce((s,j)=>s+jOwed(j),0);
+    const owedW=S.work.filter(w=>!w.paid).reduce((s,w)=>s+(Number(w.amount)||0),0);
+    const tm=today().slice(0,7);
+    const inc=S.jobs.filter(j=>mKey(j.date)===tm).reduce((s,j)=>s+jTot(j),0);
+    const exp=S.purchases.filter(p=>mKey(p.date)===tm).reduce((s,p)=>s+(Number(p.amount)||0),0);
+    const vatNet=vatOf(inc)-vatOf(exp);
+    main().innerHTML=`
+      <div class="stats">
+        <div class="stat owe"><div class="ic">${svg(I.coin,"var(--owe)")}</div><div class="label">חייבים לי</div><div class="val num">${ils(owedMe)}</div></div>
+        <div class="stat in"><div class="ic">${svg(I.dash,"var(--paid)")}</div><div class="label">הכנסות החודש</div><div class="val num">${ils(inc)}</div></div>
+        <div class="stat vat"><div class="ic">${svg(I.vat,"var(--brand)")}</div><div class="label">מע״מ החודש (אומדן)</div><div class="val num">${ils(vatNet)}</div></div>
+        <div class="stat pay"><div class="ic">${svg(I.workers,"var(--work)")}</div><div class="label">חייב לעובדים</div><div class="val num">${ils(owedW)}</div></div>
+      </div>
+      <div class="grid2">
+        <div class="panel"><h3><span class="dot"></span>הכנסות מול הוצאות · 6 חודשים</h3>${chart()}</div>
+        <div class="panel"><h3><span class="dot"></span>תובנות אוטומטיות</h3><div id="ins"></div></div>
+      </div>
+      <div class="panel"><h3><span class="dot"></span>פעילות אחרונה</h3>${S.jobs.slice(0,4).map(j=>`<div class="kv"><span>${esc(j.title||"הצעה")} <span class="mini">· ${esc(cName(j.clientId))}</span></span><span class="num">${ils(jTot(j))}</span></div>`).join("")||'<div class="mini">אין עדיין פעילות.</div>'}</div>`;
+    insights(main().querySelector("#ins"));
+  }
+  function svg(p,c){return `<svg viewBox="0 0 24 24" style="stroke:${c};fill:none;stroke-width:1.6">${p}</svg>`;}
+
+  function chart(){
+    const ms=[];const d=new Date();for(let i=5;i>=0;i--){const x=new Date(d.getFullYear(),d.getMonth()-i,1);ms.push(x.toISOString().slice(0,7));}
+    const data=ms.map(m=>({m,inc:S.jobs.filter(j=>mKey(j.date)===m).reduce((s,j)=>s+jTot(j),0),exp:S.purchases.filter(p=>mKey(p.date)===m).reduce((s,p)=>s+(Number(p.amount)||0),0)}));
+    const max=Math.max(1,...data.map(d=>Math.max(d.inc,d.exp)));
+    const W=420,H=150,pad=22,bw=(W-pad*2)/6,g=6;
+    let bars="";
+    data.forEach((d,i)=>{const x=pad+i*bw;const ih=d.inc/max*(H-pad-14),eh=d.exp/max*(H-pad-14);
+      bars+=`<rect x="${x+g}" y="${H-14-ih}" width="${bw/2-g-1}" height="${ih}" rx="2" fill="var(--paid)"/>`;
+      bars+=`<rect x="${x+bw/2}" y="${H-14-eh}" width="${bw/2-g-1}" height="${eh}" rx="2" fill="var(--owe)"/>`;
+      bars+=`<text x="${x+bw/2}" y="${H-3}" text-anchor="middle" font-size="8" fill="var(--soft)">${mLabel(d.m).split(" ")[0]}</text>`;});
+    return `<svg viewBox="0 0 ${W} ${H}" style="width:100%;height:auto;font-family:inherit">${bars}</svg>
+      <div class="mini" style="display:flex;gap:14px;margin-top:6px"><span><b style="color:var(--paid)">▮</b> הכנסות</span><span><b style="color:var(--owe)">▮</b> הוצאות</span></div>`;
+  }
+
+  function insights(el){
+    const out=[];
+    // overdue debts >30d
+    const late=S.jobs.filter(j=>jOwed(j)>0&&daysSince(j.date)>30);
+    if(late.length){const t=late.reduce((s,j)=>s+jOwed(j),0);out.push(["var(--owe)",I.alert,`<b>${ils(t)}</b> בחובות מעל 30 יום (${late.length} ${late.length>1?"לקוחות":"לקוח"}). שווה להזכיר.`]);}
+    // cheapest supplier per item
+    const byItem={};S.prices.forEach(p=>{const k=(p.item||"").trim();if(!k||!p.price)return;(byItem[k]=byItem[k]||[]).push(p);});
+    const cmp=Object.entries(byItem).filter(([,a])=>new Set(a.map(x=>x.supplierId)).size>1).slice(0,2);
+    cmp.forEach(([item,a])=>{const min=a.reduce((m,x)=>x.price<m.price?x:m);out.push(["var(--paid)",I.spark,`הזול ל<b>${esc(item)}</b>: ${esc(sName(min.supplierId))} — ${ils(min.price)}.`]);});
+    // unpaid workers
+    const ow=S.work.filter(w=>!w.paid).reduce((s,w)=>s+(Number(w.amount)||0),0);
+    if(ow)out.push(["var(--work)",I.workers,`<b>${ils(ow)}</b> ממתין לתשלום לעובדים.`]);
+    if(!out.length)out.push(["var(--brand)",I.spark,"הוסיפי עבודות, ספקים ורכש — וכאן יופיעו תובנות אוטומטיות (חובות באיחור, ספק הכי זול, ועוד)."]);
+    el.innerHTML=out.map(o=>`<div class="insight"><span class="b" style="background:${o[0]}"><svg viewBox="0 0 24 24">${o[1]}</svg></span><span>${o[2]}</span></div>`).join("");
+  }
+
+  /* ===== generic list search ===== */
+  function searchBox(ph,id){return `<div class="search"><svg viewBox="0 0 24 24">${I.search}</svg><input id="${id}" placeholder="${ph}"></div>`;}
+
+  /* ===== JOBS ===== */
+  let jq="";
+  function vJobs(){
+    const list=S.jobs.filter(j=>!jq||((j.title||"")+cName(j.clientId)).toLowerCase().includes(jq.toLowerCase()));
+    main().innerHTML=searchBox("חיפוש לפי כותרת או לקוח…","jq")+
+      (list.length?list.map(j=>{const t=jTot(j),o=jOwed(j),pc=t>0?Math.min(100,Math.round((t-o)/t*100)):0,late=o>0&&daysSince(j.date)>30;
+      return `<div class="row"><div class="top"><div><div class="who">${esc(j.title||"הצעה")}</div><div class="sub">${esc(cName(j.clientId))} · ${esc(j.date||"")}</div></div><div style="display:flex;gap:5px">${late?'<span class="pill late">באיחור</span>':""}${pill(j.status)}</div></div>
+      <div class="money"><span>${ils(t)} <span class="mini">(מע״מ ${ils(vatOf(t))})</span></span><span class="${o>0?"o":"c"} num">${o>0?"חייב "+ils(o):"שולם ✓"}</span></div>
+      <div class="bar"><span style="width:${pc}%"></span></div>
+      <div class="acts"><button class="btn ghost sm" data-pay="${j.id}">תשלום</button><button class="btn ghost sm" data-st="${j.id}">סטטוס</button><button class="btn ghost sm" data-dj="${j.id}">מחיקה</button></div></div>`;}).join(""):`<div class="empty">אין עבודות. לחצי "חדש" → הצעת מחיר.</div>`);
+    const i=main().querySelector("#jq");i.value=jq;i.oninput=()=>{jq=i.value;const p=i.selectionStart;vJobs();const ni=main().querySelector("#jq");ni.focus();ni.setSelectionRange(p,p);};
+    main().querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>pay(b.dataset.pay));
+    main().querySelectorAll("[data-st]").forEach(b=>b.onclick=async()=>{const j=S.jobs.find(x=>x.id===b.dataset.st);j.status=j.status==="quote"?"work":j.status==="work"?"done":"quote";await save();render();});
+    main().querySelectorAll("[data-dj]").forEach(b=>b.onclick=async()=>{if(confirm("למחוק?")){S.jobs=S.jobs.filter(x=>x.id!==b.dataset.dj);await save();render();}});
+  }
+  let draft=[];
+  function jobForm(){
+    draft=[{desc:"",qty:1,price:0}];const ov=document.createElement("div");ov.className="ov";ov.dir="rtl";
+    const cli=S.clients.length?`<select data-k="client">${S.clients.map(c=>`<option value="${c.id}">${esc(c.name)}</option>`).join("")}</select>`:`<input data-k="client" placeholder="שם לקוח (ייווצר)">`;
+    const rows=()=>draft.map((it,i)=>`<div class="lineitem"><input data-i="${i}" data-f="desc" placeholder="תיאור" value="${esc(it.desc)}"><input data-i="${i}" data-f="qty" type="number" step="any" value="${it.qty}"><input data-i="${i}" data-f="price" type="number" step="any" value="${it.price}"><button class="x" data-rm="${i}">×</button></div>`).join("");
+    const tot=()=>draft.reduce((s,i)=>s+(Number(i.qty)||0)*(Number(i.price)||0),0);
+    function draw(){ov.innerHTML=`<div class="modal"><h3>הצעת מחיר חדשה</h3>
+      <div class="field"><label>כותרת / עבודה</label><input data-k="title" placeholder="דירה ברח׳ הראשונים"></div>
+      <div class="field"><label>לקוח</label>${cli}</div>
+      <div class="field"><label>תאריך</label><input data-k="date" type="date" value="${today()}"></div>
+      <div class="field"><label>שורות</label><div class="lineitem mini"><span>תיאור</span><span>כמות</span><span>מחיר</span><span></span></div><div id="rows">${rows()}</div><button class="btn ghost sm" id="add">+ שורה</button></div>
+      <div class="money" style="margin:12px 0"><span>סה״כ לפני מע״מ</span><b class="num" id="tot">${ils(tot())}</b></div>
+      <button class="btn primary full" id="ok">שמירה</button><button class="btn ghost full" id="cx" style="margin-top:8px">ביטול</button></div>`;bind();}
+    function bind(){ov.querySelectorAll("#rows input").forEach(inp=>inp.oninput=()=>{draft[+inp.dataset.i][inp.dataset.f]=inp.value;ov.querySelector("#tot").textContent=ils(tot());});
+      ov.querySelectorAll("[data-rm]").forEach(b=>b.onclick=()=>{draft.splice(+b.dataset.rm,1);if(!draft.length)draft=[{desc:"",qty:1,price:0}];draw();});
+      ov.querySelector("#add").onclick=()=>{draft.push({desc:"",qty:1,price:0});draw();};
+      ov.querySelector("#cx").onclick=()=>ov.remove();
+      ov.querySelector("#ok").onclick=async()=>{const g=k=>{const e=ov.querySelector(`[data-k="${k}"]`);return e?e.value.trim():"";};
+        const title=g("title");let clientId;if(S.clients.length)clientId=g("client");else{const nm=g("client");if(nm){const c={id:uid(),name:nm,phone:"",site:"",note:""};S.clients.push(c);clientId=c.id;}}
+        const items=draft.filter(i=>i.desc||Number(i.price)>0).map(i=>({desc:i.desc,qty:Number(i.qty)||0,price:Number(i.price)||0}));
+        if(!title&&!items.length){alert("הוסיפי כותרת או שורה.");return;}
+        S.jobs.unshift({id:uid(),clientId,title,status:"quote",items,received:0,date:g("date")||today()});await save();ov.remove();render();};}
+    draw();root.appendChild(ov);
+  }
+  async function pay(id){const j=S.jobs.find(x=>x.id===id);if(!j)return;const o=jOwed(j);const v=prompt(`כמה התקבל? (נותר ${ils(o)})`,o||"");if(v===null)return;const a=Number(v);if(isNaN(a)||a<0){alert("סכום לא תקין");return;}j.received=(Number(j.received)||0)+a;if(j.received>=jTot(j)&&jTot(j)>0)j.status="done";await save();render();}
+
+  /* ===== CLIENTS ===== */
+  let cq="";
+  function vClients(){
+    const list=S.clients.filter(c=>!cq||(c.name+c.phone).toLowerCase().includes(cq.toLowerCase()));
+    main().innerHTML=searchBox("חיפוש לקוח…","cq")+`<div style="margin-bottom:12px"><button class="btn primary sm" id="add">+ לקוח</button></div>`+
+      (list.length?list.map(c=>{const o=S.jobs.filter(j=>j.clientId===c.id).reduce((s,j)=>s+jOwed(j),0);
+        return `<div class="row"><div class="top"><div><div class="who">${esc(c.name)}</div><div class="sub">${esc(c.phone)||"—"}${c.site?" · "+esc(c.site):""}</div></div>${o>0?`<span class="pill late">חייב ${ils(o)}</span>`:""}</div>${c.note?`<div class="sub" style="margin-top:7px">${esc(c.note)}</div>`:""}<div class="acts"><button class="btn ghost sm" data-dc="${c.id}">מחיקה</button></div></div>`;}).join(""):`<div class="empty">אין לקוחות.</div>`);
+    bindSearch("cq",v=>cq=v,vClients);
+    main().querySelector("#add").onclick=addClient;
+    main().querySelectorAll("[data-dc]").forEach(b=>b.onclick=async()=>{if(confirm("למחוק לקוח?")){S.clients=S.clients.filter(c=>c.id!==b.dataset.dc);await save();render();}});
+  }
+  const addClient=()=>openForm("לקוח חדש",[{key:"name",label:"שם"},{key:"phone",label:"טלפון"},{key:"site",label:"אתר / כתובת"},{key:"note",label:"הערה",type:"textarea"}],v=>{if(!v.name)return"שם חובה";S.clients.push({id:uid(),...v});save();render();});
+
+  /* ===== SUPPLIERS + price compare ===== */
+  let pcq="";
+  function vSuppliers(){
+    let cmpHtml="";
+    if(pcq){const q=pcq.toLowerCase();const matches=S.prices.filter(p=>(p.item||"").toLowerCase().includes(q)).sort((a,b)=>a.price-b.price);
+      cmpHtml=`<div class="panel"><h3><span class="dot"></span>השוואת מחירים: "${esc(pcq)}"</h3>${matches.length?matches.map((p,i)=>`<div class="kv"><span>${esc(sName(p.supplierId))} <span class="mini">${esc(p.item)} ${esc(p.unit||"")}</span></span><span class="num">${ils(p.price)} ${i===0?'<span class="cheap">הכי זול</span>':""}</span></div>`).join(""):'<div class="mini">לא נמצאו מחירים לפריט הזה.</div>'}</div>`;}
+    main().innerHTML=`<div class="search"><svg viewBox="0 0 24 24">${I.search}</svg><input id="pcq" placeholder="השוואת מחירים — הקלידי פריט (למשל: טיח גבס)…"></div>${cmpHtml}
+      <div style="margin-bottom:12px"><button class="btn primary sm" id="add">+ ספק</button></div>
+      ${S.suppliers.length?S.suppliers.map(s=>{const pr=S.prices.filter(p=>p.supplierId===s.id);const rs=S.purchases.filter(p=>p.supplierId===s.id&&(p.ratingNote||p.rating));
+        return `<div class="row"><div class="top"><div><div class="who">${esc(s.name)}</div><div class="sub">${esc(s.phone)||"—"}</div></div></div>
+        ${pr.length?`<div style="margin-top:9px">${pr.slice(-5).map(p=>`<div class="kv"><span>${esc(p.item)} <span class="mini">${esc(p.unit||"")}</span></span><span class="num">${ils(p.price)}</span></div>`).join("")}</div>`:`<div class="mini" style="margin-top:7px">אין מחירים שמורים.</div>`}
+        ${rs.length?`<div class="rate">${stars(rs[rs.length-1].rating)} ${esc(rs[rs.length-1].ratingNote||"")}</div>`:""}
+        <div class="acts"><button class="btn ghost sm" data-ap="${s.id}">+ מחיר</button><button class="btn ghost sm" data-ds="${s.id}">מחיקה</button></div></div>`;}).join(""):`<div class="empty">אין ספקים.</div>`}`;
+    bindSearch("pcq",v=>pcq=v,vSuppliers);
+    main().querySelector("#add").onclick=addSupplier;
+    main().querySelectorAll("[data-ap]").forEach(b=>b.onclick=()=>openForm("מחיר לספק",[{key:"item",label:"פריט"},{key:"price",label:"מחיר (לפני מע״מ)",type:"number"},{key:"unit",label:"יחידה"}],v=>{if(!v.item)return"פריט חובה";S.prices.push({id:uid(),supplierId:b.dataset.ap,item:v.item,price:Number(v.price)||0,unit:v.unit,date:today()});save();render();}));
+    main().querySelectorAll("[data-ds]").forEach(b=>b.onclick=async()=>{if(confirm("למחוק ספק?")){S.suppliers=S.suppliers.filter(s=>s.id!==b.dataset.ds);S.prices=S.prices.filter(p=>p.supplierId!==b.dataset.ds);await save();render();}});
+  }
+  const addSupplier=()=>openForm("ספק חדש",[{key:"name",label:"שם"},{key:"phone",label:"טלפון"},{key:"note",label:"הערה",type:"textarea"}],v=>{if(!v.name)return"שם חובה";S.suppliers.push({id:uid(),...v});save();render();});
+
+  /* ===== PURCHASES ===== */
+  function vPurchases(){
+    main().innerHTML=`<div class="note">כל הזמנה מתעדכנת אוטומטית בתשומות המע״מ + נשמרת למחירון הספק.</div>
+      <div style="margin-bottom:12px"><button class="btn primary sm" id="add">+ הזמנת רכש</button></div>
+      ${S.purchases.length?[...S.purchases].reverse().map(p=>`<div class="row"><div class="top"><div><div class="who">${esc(p.item)}</div><div class="sub">${esc(sName(p.supplierId))} · ${esc(p.date)}${p.jobId?" · "+esc(jTitle(p.jobId)):""}</div></div><span class="num">${ils(p.amount)}</span></div>${(p.rating||p.ratingNote)?`<div class="rate">${stars(p.rating)} ${esc(p.ratingNote||"")}</div>`:""}<div class="acts"><button class="btn ghost sm" data-dp="${p.id}">מחיקה</button></div></div>`).join(""):`<div class="empty">אין הזמנות רכש.</div>`}`;
+    main().querySelector("#add").onclick=addPurchase;
+    main().querySelectorAll("[data-dp]").forEach(b=>b.onclick=async()=>{if(confirm("למחוק?")){S.purchases=S.purchases.filter(p=>p.id!==b.dataset.dp);await save();render();}});
+  }
+  function addPurchase(){
+    if(!S.suppliers.length){alert("הוסיפי קודם ספק.");view="suppliers";render();return;}
+    openForm("הזמנת רכש",[
+      {key:"supplierId",label:"ספק",type:"select",options:S.suppliers.map(s=>({v:s.id,t:s.name}))},
+      {key:"jobId",label:"שייך לעבודה (לא חובה)",type:"select",options:[{v:"",t:"— ללא —"}].concat(S.jobs.map(j=>({v:j.id,t:j.title||"הצעה"})))},
+      {key:"item",label:"פריט / תיאור"},{key:"amount",label:"סכום (לפני מע״מ)",type:"number"},
+      {key:"date",label:"תאריך",type:"date",def:today()},{key:"rating",label:"דירוג ספק 1-5",type:"number"},
+      {key:"ratingNote",label:'הערה ("פעם הבאה לדבר עם דני…")',type:"textarea"}
+    ],v=>{if(!v.item)return"פריט חובה";const amt=Number(v.amount)||0;
+      S.purchases.push({id:uid(),supplierId:v.supplierId,jobId:v.jobId||"",item:v.item,amount:amt,date:v.date||today(),rating:Math.min(5,Math.max(0,Number(v.rating)||0)),ratingNote:v.ratingNote});
+      if(amt>0)S.prices.push({id:uid(),supplierId:v.supplierId,item:v.item,price:amt,unit:"",date:v.date||today()});
+      save();render();});
+  }
+
+  /* ===== DEBTS (aging) ===== */
+  function vDebts(){
+    const list=S.jobs.filter(j=>jOwed(j)>0).sort((a,b)=>daysSince(b.date)-daysSince(a.date));
+    const tot=list.reduce((s,j)=>s+jOwed(j),0);
+    main().innerHTML=`<div class="note">סה״כ פתוח: <b class="num">${ils(tot)}</b> · ממוין מהישן לחדש</div>
+      ${list.length?list.map(j=>{const d=daysSince(j.date);return `<div class="row"><div class="top"><div><div class="who">${esc(cName(j.clientId))}</div><div class="sub">על: ${esc(j.title||"עבודה")}${(j.items&&j.items.length)?" — "+esc(j.items.map(i=>i.desc).filter(Boolean).join(", ")):""}</div></div><div style="text-align:left"><div class="o num">${ils(jOwed(j))}</div>${d>30?`<span class="pill late">${d} ימים</span>`:`<span class="mini">${d} ימים</span>`}</div></div><div class="mini" style="margin-top:6px">מתוך ${ils(jTot(j))} · התקבל ${ils(Number(j.received)||0)}</div><div class="acts"><button class="btn ghost sm" data-pay="${j.id}">רישום תשלום</button></div></div>`;}).join(""):`<div class="empty">אין חובות פתוחים 🎉</div>`}`;
+    main().querySelectorAll("[data-pay]").forEach(b=>b.onclick=()=>pay(b.dataset.pay));
+  }
+
+  /* ===== VAT ===== */
+  function vVat(){
+    const months=[...new Set([...S.jobs.map(j=>mKey(j.date)),...S.purchases.map(p=>mKey(p.date))].filter(Boolean))].sort().reverse();
+    main().innerHTML=`<div class="note">אומדן ${rate()}% לפי תאריך עסקה · למסירה לרו״ח, לא דיווח רשמי.</div>
+      ${months.length?months.map(m=>{const out=S.jobs.filter(j=>mKey(j.date)===m).reduce((s,j)=>s+jTot(j),0);const inp=S.purchases.filter(p=>mKey(p.date)===m).reduce((s,p)=>s+(Number(p.amount)||0),0);const net=vatOf(out)-vatOf(inp);
+        return `<div class="panel"><h3><span class="dot"></span>${mLabel(m)}</h3>
+        <div class="kv"><span>עסקאות (הכנסות)</span><span class="num">${ils(out)}</span></div><div class="kv"><span>מע״מ עסקאות</span><span class="num">${ils(vatOf(out))}</span></div>
+        <div class="kv"><span>תשומות (רכש)</span><span class="num">${ils(inp)}</span></div><div class="kv"><span>מע״מ תשומות</span><span class="num">${ils(vatOf(inp))}</span></div>
+        <div class="kv"><b>מע״מ לתשלום</b><b class="num" style="color:${net>=0?"var(--owe)":"var(--paid)"}">${ils(net)}</b></div></div>`;}).join(""):`<div class="empty">אין נתונים.</div>`}`;
+  }
+
+  /* ===== WORKERS ===== */
+  function vWorkers(){
+    main().innerHTML=`<div class="note">מודול עצמאי — לא מסונכרן עם שום מערכת.</div>
+      <div style="margin-bottom:12px"><button class="btn primary sm" id="add">+ עובד</button></div>
+      ${S.workers.length?S.workers.map(w=>{const ent=S.work.filter(e=>e.workerId===w.id);const owe=ent.filter(e=>!e.paid).reduce((s,e)=>s+(Number(e.amount)||0),0);
+        return `<div class="row"><div class="top"><div><div class="who">${esc(w.name)}</div><div class="sub">${esc(w.phone)||"—"}</div></div>${owe>0?`<span class="pill late">חייב ${ils(owe)}</span>`:`<span class="pill done">מעודכן</span>`}</div>
+        ${ent.length?`<div style="margin-top:9px">${ent.map(e=>`<div class="kv"><span>${esc(e.date)} · ${esc(e.desc||"")}${e.jobId?" · "+esc(jTitle(e.jobId)):""}</span><span class="num">${ils(e.amount)} ${e.paid?'<span style="color:var(--paid)">✓</span>':`<button class="btn ghost sm" data-pd="${e.id}">שולם</button>`}</span></div>`).join("")}</div>`:`<div class="mini" style="margin-top:7px">אין רישומים.</div>`}
+        <div class="acts"><button class="btn ghost sm" data-we="${w.id}">+ רישום עבודה</button><button class="btn ghost sm" data-dw="${w.id}">מחיקה</button></div></div>`;}).join(""):`<div class="empty">אין עובדים.</div>`}`;
+    main().querySelector("#add").onclick=addWorker;
+    main().querySelectorAll("[data-we]").forEach(b=>b.onclick=()=>openForm("רישום עבודה",[{key:"date",label:"תאריך",type:"date",def:today()},{key:"jobId",label:"עבודה (לא חובה)",type:"select",options:[{v:"",t:"— ללא —"}].concat(S.jobs.map(j=>({v:j.id,t:j.title||"הצעה"})))},{key:"desc",label:"תיאור"},{key:"amount",label:"סכום לתשלום",type:"number"}],v=>{S.work.push({id:uid(),workerId:b.dataset.we,date:v.date||today(),jobId:v.jobId||"",desc:v.desc,amount:Number(v.amount)||0,paid:false});save();render();}));
+    main().querySelectorAll("[data-pd]").forEach(b=>b.onclick=async()=>{S.work.find(x=>x.id===b.dataset.pd).paid=true;await save();render();});
+    main().querySelectorAll("[data-dw]").forEach(b=>b.onclick=async()=>{if(confirm("למחוק עובד?")){S.workers=S.workers.filter(w=>w.id!==b.dataset.dw);S.work=S.work.filter(e=>e.workerId!==b.dataset.dw);await save();render();}});
+  }
+  const addWorker=()=>openForm("עובד חדש",[{key:"name",label:"שם"},{key:"phone",label:"טלפון"}],v=>{if(!v.name)return"שם חובה";S.workers.push({id:uid(),...v});save();render();});
+
+  /* ===== BOOKS ===== */
+  function vBooks(){
+    const months=[...new Set([...S.jobs.map(j=>mKey(j.date)),...S.purchases.map(p=>mKey(p.date))].filter(Boolean))].sort().reverse();
+    let txt=`סיכום ${S.settings.biz} · מע״מ ${rate()}% (אומדן לרו״ח)\n\n`;
+    const rows=months.map(m=>{const out=S.jobs.filter(j=>mKey(j.date)===m).reduce((s,j)=>s+jTot(j),0);const inp=S.purchases.filter(p=>mKey(p.date)===m).reduce((s,p)=>s+(Number(p.amount)||0),0);
+      txt+=`${mLabel(m)}: הכנסות ${Math.round(out)} | הוצאות ${Math.round(inp)} | מע״מ נטו ${Math.round(vatOf(out)-vatOf(inp))}\n`;
+      return `<tr><td>${mLabel(m)}</td><td class="num">${ils(out)}</td><td class="num">${ils(inp)}</td><td class="num">${ils(vatOf(out)-vatOf(inp))}</td></tr>`;});
+    main().innerHTML=`<div class="note">טבלה חודשית + טקסט מוכן לשליחה. לא תחליף להנהלת חשבונות.</div>
+      ${months.length?`<div class="panel"><table class="bk"><tr><th>חודש</th><th>הכנסות</th><th>הוצאות</th><th>מע״מ נטו</th></tr>${rows.join("")}</table></div><div class="panel"><h3><span class="dot"></span>טקסט למסירה</h3><textarea class="exp" readonly>${esc(txt)}</textarea></div>`:`<div class="empty">אין נתונים.</div>`}`;
+  }
+
+  /* ===== SETTINGS ===== */
+  function vSettings(){
+    main().innerHTML=`<div class="panel"><div class="field"><label>שם העסק</label><input id="sbiz" value="${esc(S.settings.biz)}"></div><div class="field"><label>שיעור מע״מ (%)</label><input id="svat" type="number" step="any" value="${S.settings.vat}"></div><button class="btn primary" id="ss">שמירה</button></div>
+      <div class="panel"><h3><span class="dot"></span>נתונים</h3><div class="mini" style="margin-bottom:9px">הנתונים נשמרים מקומית במכשיר זה.</div><button class="btn ghost" id="rs">איפוס כל הנתונים</button></div>`;
+    main().querySelector("#ss").onclick=async()=>{S.settings.biz=main().querySelector("#sbiz").value.trim()||"העסק שלי";S.settings.vat=Number(main().querySelector("#svat").value)||0;await save();render();};
+    main().querySelector("#rs").onclick=async()=>{if(confirm("למחוק הכל לצמיתות?")){S={settings:{vat:18,biz:"העסק שלי"},clients:[],jobs:[],suppliers:[],prices:[],purchases:[],workers:[],work:[]};await save();render();}};
+  }
+
+  function bindSearch(id,setter,rerender){const i=main().querySelector("#"+id);if(!i)return;i.oninput=()=>{const p=i.selectionStart;setter(i.value);rerender();const ni=main().querySelector("#"+id);if(ni){ni.focus();ni.setSelectionRange(p,p);}};}
+
+  (async function(){await load();render();})();
+})();
+</script>

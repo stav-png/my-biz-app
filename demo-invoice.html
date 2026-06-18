@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>חשבונית דמה — הדגמה בלבד</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, "Segoe UI", Arial, sans-serif;
+      color: #1b2a36;
+      background: #f0f4f7;
+      padding: 32px 16px;
+      direction: rtl;
+      font-size: 13px;
+    }
+    .page {
+      max-width: 800px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 32px rgba(0,0,0,.10);
+      padding: 32px 36px;
+    }
+
+    .demo-banner {
+      background: #fff8e1;
+      border: 2px dashed #f59e0b;
+      border-radius: 8px;
+      padding: 8px 14px;
+      text-align: center;
+      font-size: .8rem;
+      color: #92400e;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 20px;
+      padding-bottom: 16px;
+      border-bottom: 3px solid #11716e;
+      gap: 16px;
+    }
+    .biz-name { font-size: 1.35rem; font-weight: 800; color: #11716e; margin-bottom: 5px; }
+    .biz-details { font-size: .78rem; color: #64727f; line-height: 1.75; }
+    .inv-box {
+      text-align: left;
+      background: #f5f9f8;
+      border: 1px solid #c5e0de;
+      border-radius: 10px;
+      padding: 12px 16px;
+      min-width: 190px;
+      flex-shrink: 0;
+    }
+    .inv-box .label { font-size: .65rem; color: #64727f; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 3px; }
+    .inv-box .inv-num { font-size: 1.2rem; font-weight: 800; color: #11716e; }
+    .inv-box .inv-meta { font-size: .76rem; color: #64727f; margin-top: 5px; line-height: 1.7; }
+    .inv-box .inv-total { font-size: .95rem; font-weight: 800; color: #1b2a36; }
+
+    .parties {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .party {
+      background: #f9fafb;
+      border: 1px solid #e3e7ec;
+      border-radius: 8px;
+      padding: 10px 13px;
+    }
+    .party .party-title { font-size: .65rem; color: #64727f; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+    .party .party-name { font-weight: 700; font-size: .9rem; margin-bottom: 3px; }
+    .party .party-detail { font-size: .78rem; color: #64727f; line-height: 1.65; }
+
+    .subject { font-size: .83rem; color: #64727f; margin-bottom: 14px; }
+    .subject b { color: #1b2a36; }
+
+    table { width: 100%; border-collapse: collapse; margin-bottom: 16px; font-size: .83rem; }
+    thead tr { background: #11716e; color: #fff; }
+    thead th { padding: 8px 10px; font-weight: 600; text-align: right; }
+    thead th.num { text-align: left; }
+    tbody tr:nth-child(even) { background: #f7f9fa; }
+    tbody td { padding: 7px 10px; border-bottom: 1px solid #e3e7ec; }
+    tbody td.num { text-align: left; }
+
+    .bottom-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 16px;
+      align-items: start;
+      margin-bottom: 16px;
+    }
+    .left-col { display: flex; flex-direction: column; gap: 12px; }
+
+    /* מספר הקצאה */
+    .allocation {
+      background: #e8f5e9;
+      border: 1px solid #a5d6a7;
+      border-radius: 8px;
+      padding: 10px 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .alloc-icon { font-size: 1.2rem; }
+    .alloc-label { font-size: .73rem; color: #388e3c; font-weight: 700; margin-bottom: 2px; }
+    .alloc-num { font-size: .92rem; font-weight: 800; color: #1b5e20; letter-spacing: .04em; }
+
+    /* חתימה דיגיטלית */
+    .sign-box {
+      background: #f9fafb;
+      border: 1px solid #e3e7ec;
+      border-radius: 8px;
+      padding: 10px 13px;
+    }
+    .sign-label { font-size: .73rem; color: #64727f; font-weight: 600; margin-bottom: 6px; }
+    canvas#sig { display: block; }
+    .sign-meta {
+      margin-top: 6px;
+      font-size: .7rem;
+      color: #64727f;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .sign-meta .verified {
+      background: #e8f5e9;
+      color: #2e7d32;
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-weight: 700;
+      font-size: .65rem;
+    }
+
+    /* סיכום */
+    .totals {
+      border: 1px solid #e3e7ec;
+      border-radius: 10px;
+      overflow: hidden;
+      min-width: 270px;
+    }
+    .t-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 14px;
+      font-size: .83rem;
+      border-bottom: 1px solid #e3e7ec;
+      gap: 14px;
+    }
+    .t-row:last-child { border: none; background: #11716e; color: #fff; font-weight: 800; font-size: .92rem; }
+    .t-row.withhold { background: #fff8f0; color: #b45309; border-bottom: 1px solid #fed7aa; }
+
+    /* בנק */
+    .bank-box {
+      background: #f9fafb;
+      border: 1px solid #e3e7ec;
+      border-radius: 8px;
+      padding: 10px 13px;
+    }
+    .bank-label { font-weight: 700; margin-bottom: 7px; font-size: .78rem; }
+    .kv { display: flex; justify-content: space-between; font-size: .78rem; margin-bottom: 4px; color: #64727f; }
+    .kv b { color: #1b2a36; }
+
+    .footer {
+      border-top: 1px solid #e3e7ec;
+      padding-top: 10px;
+      font-size: .68rem;
+      color: #9eaab5;
+      text-align: center;
+      line-height: 1.9;
+    }
+
+    .print-area { text-align: center; margin-top: 22px; display: flex; gap: 10px; justify-content: center; }
+    .print-area button {
+      border: none;
+      padding: 11px 26px;
+      border-radius: 9px;
+      font-size: .9rem;
+      cursor: pointer;
+      font-family: inherit;
+      font-weight: 700;
+    }
+    .btn-print { background: #11716e; color: #fff; }
+    .btn-close { background: #f0f4f7; color: #1b2a36; }
+
+    @media print {
+      html, body { height: auto; }
+      body { background: #fff; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+      .page { box-shadow: none; border-radius: 0; padding: 16px 20px; page-break-inside: avoid; }
+      .demo-banner, .print-area { display: none; }
+      * { page-break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="page">
+
+  <div class="demo-banner">⚠️ חשבונית דמה — לצורך הדגמה בלבד, לא מסמך חשבונאי רשמי</div>
+
+  <div class="header">
+    <div>
+      <div class="biz-name">ישראל לוי — טייח ובנאי</div>
+      <div class="biz-details">
+        עוסק מורשה מס׳ <b>123456789</b><br>
+        טלפון: <b>050-1234567</b><br>
+        כתובת: רחוב הבנאים 5, תל אביב
+      </div>
+    </div>
+    <div class="inv-box">
+      <div class="label">חשבונית מס</div>
+      <div class="inv-num">מס׳ 1042</div>
+      <div class="inv-meta">
+        תאריך: <b>18.06.2026</b><br>
+        לתשלום עד: <b>18.07.2026</b><br>
+        <span class="inv-total">₪18,313 לתשלום</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="parties">
+    <div class="party">
+      <div class="party-title">מאת (מוכר)</div>
+      <div class="party-name">ישראל לוי — טייח ובנאי</div>
+      <div class="party-detail">עוסק מורשה מס׳ 123456789<br>050-1234567<br>רחוב הבנאים 5, תל אביב</div>
+    </div>
+    <div class="party">
+      <div class="party-title">לכבוד (קונה)</div>
+      <div class="party-name">דוד כהן בע"מ</div>
+      <div class="party-detail">ח.פ: <b>512345678</b><br>050-9876543<br>רחוב הרצל 12, רמת גן</div>
+    </div>
+  </div>
+
+  <div class="subject">נושא: <b>שיפוץ וטיח — וילה כהן, רמת גן</b> · אתר: <b>פרויקט רמת גן</b></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th style="width:30px">#</th>
+        <th>תיאור</th>
+        <th class="num" style="width:60px">כמות</th>
+        <th class="num" style="width:100px">מחיר יחידה</th>
+        <th class="num" style="width:100px">סה״כ</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>טיח פנים — סלון ומטבח (כולל חומר)</td><td class="num">1</td><td class="num">₪4,500</td><td class="num">₪4,500</td></tr>
+      <tr><td>2</td><td>טיח חוץ — חזית הבניין</td><td class="num">1</td><td class="num">₪6,000</td><td class="num">₪6,000</td></tr>
+      <tr><td>3</td><td>צביעה — 3 חדרי שינה</td><td class="num">3</td><td class="num">₪1,000</td><td class="num">₪3,000</td></tr>
+      <tr><td>4</td><td>עבודות גבס — תקרה</td><td class="num">1</td><td class="num">₪2,500</td><td class="num">₪2,500</td></tr>
+    </tbody>
+  </table>
+
+  <div class="bottom-row">
+    <div class="left-col">
+
+      <!-- מספר הקצאה -->
+      <div class="allocation">
+        <div class="alloc-icon">✅</div>
+        <div>
+          <div class="alloc-label">מספר הקצאה (חשבוניות ישראל — חובה מ-1.6.2026)</div>
+          <div class="alloc-num">IL‑2026‑0042‑8834921</div>
+        </div>
+      </div>
+
+      <!-- חתימה דיגיטלית -->
+      <div class="sign-box">
+        <div class="sign-label">חתימה דיגיטלית של המוכר</div>
+        <canvas id="sig" width="300" height="62"></canvas>
+        <div class="sign-meta">
+          <span>ישראל לוי · עוסק מורשה 123456789</span>
+          <span class="verified">✔ מאומת</span>
+        </div>
+      </div>
+
+      <!-- בנק -->
+      <div class="bank-box">
+        <div class="bank-label">פרטי תשלום</div>
+        <div class="kv"><span>בנק הפועלים (12)</span><span>סניף <b>100</b> · חשבון <b>123456</b></span></div>
+        <div class="kv"><span>לציין בהעברה:</span><span><b>חשבונית 1042</b></span></div>
+      </div>
+
+    </div>
+
+    <!-- סיכום -->
+    <div class="totals">
+      <div class="t-row"><span>לפני מע״מ</span><span>₪16,000</span></div>
+      <div class="t-row"><span>מע״מ 18%</span><span>₪2,880</span></div>
+      <div class="t-row"><span>כולל מע״מ</span><span>₪18,880</span></div>
+      <div class="t-row withhold"><span>ניכוי מס במקור (3%)</span><span>— ₪567</span></div>
+      <div class="t-row"><span>לתשלום בפועל</span><span>₪18,313</span></div>
+    </div>
+  </div>
+
+  <div class="footer">
+    ישראל לוי — טייח ובנאי · עוסק מורשה 123456789 · 050-1234567 · רחוב הבנאים 5, תל אביב<br>
+    מסמך זה הופק ב-18 ביוני 2026 · חשבונית מס מקורית — יש לשמור לצרכי מס
+  </div>
+
+  <div class="print-area">
+    <button class="btn-print" onclick="window.print()">🖨 הדפסה / שמירה כ-PDF</button>
+    <button class="btn-close" onclick="window.close()">✕ סגירה</button>
+  </div>
+
+</div>
+
+<script>
+// חתימה דיגיטלית אוטומטית — מצייר מהשם
+(function() {
+  const canvas = document.getElementById('sig');
+  const ctx = canvas.getContext('2d');
+  const name = 'ישראל לוי';
+  const dpr = window.devicePixelRatio || 1;
+
+  canvas.width  = 300 * dpr;
+  canvas.height = 62  * dpr;
+  canvas.style.width  = '300px';
+  canvas.style.height = '62px';
+  ctx.scale(dpr, dpr);
+
+  // רקע שקוף
+  ctx.clearRect(0, 0, 300, 62);
+
+  // צייר חתימה בסגנון כתב-יד
+  ctx.strokeStyle = '#11716e';
+  ctx.lineWidth = 2.2;
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  // טקסט בפונט cursive
+  ctx.font = 'italic 28px Georgia, serif';
+  ctx.fillStyle = '#11716e';
+  ctx.textBaseline = 'middle';
+  ctx.textAlign = 'right';
+  ctx.fillText(name, 285, 26);
+
+  // קו תחתון עם גל קל
+  ctx.beginPath();
+  ctx.moveTo(10, 46);
+  ctx.bezierCurveTo(80, 38, 160, 54, 240, 44);
+  ctx.bezierCurveTo(260, 40, 275, 48, 290, 44);
+  ctx.globalAlpha = 0.45;
+  ctx.stroke();
+  ctx.globalAlpha = 1;
+
+  // חותמת זמן קטנה
+  ctx.font = '9px monospace';
+  ctx.fillStyle = '#9eaab5';
+  ctx.textAlign = 'left';
+  ctx.fillText('18.06.2026 · 14:32:07', 10, 57);
+})();
+</script>
+</body>
+</html>
