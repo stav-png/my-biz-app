@@ -1,6 +1,7 @@
 import { I } from './icons.js';
 import { S } from './state.js';
 import { esc, jOwed } from './utils.js';
+import { signOut } from './auth.js';
 import { vDash }      from './views/dash.js';
 import { invoiceForm } from './views/invoice-form.js';
 import { vJobs, jobForm }          from './views/jobs.js';
@@ -68,6 +69,7 @@ export function render() {
           <button class="iconbtn" id="burger"><svg viewBox="0 0 24 24">${I.menu}</svg></button>
           <h2>${TITLES[view]}</h2>
           <div class="sp"></div>
+          <button id="signout" style="background:none;border:1px solid var(--line);border-radius:8px;padding:6px 10px;font-size:.76rem;color:var(--soft);cursor:pointer;font-family:inherit">יציאה</button>
           <div class="qadd">
             <button class="btn primary" id="qbtn">
               <svg viewBox="0 0 24 24" style="width:14px;height:14px;stroke:#fff;fill:none;stroke-width:2.4;vertical-align:-2px">${I.plus}</svg> חדש
@@ -83,6 +85,7 @@ export function render() {
   root.querySelector('#burger').onclick = () => { navOpen = !navOpen; render(); };
   root.querySelector('#scrim').onclick  = () => { navOpen = false; render(); };
   root.querySelector('#qbtn').onclick   = quickMenu;
+  root.querySelector('#signout').onclick = () => { if (confirm('לצאת מהמערכת?')) signOut(); };
 
   ({ dash: vDash, jobs: vJobs, clients: vClients, suppliers: vSuppliers, purchases: vPurchases,
      debts: vDebts, vat: vVat, workers: vWorkers, books: vBooks, settings: vSettings })[view]();
