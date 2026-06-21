@@ -120,8 +120,8 @@ button:focus-visible, .nav:focus-visible { outline: 2px solid var(--brand2); out
 
 @media (max-width: 780px) {
   .shell { min-height: 100vh; border-radius: 0; border: none; flex-direction: column; }
-  .sidebar { position: fixed; inset-block: 0; inset-inline-end: 0; z-index: 40; transform: translateX(100%); transition: transform .22s; height: 100%; width: 220px; overflow-y: auto; }
-  .sidebar.open { transform: none; box-shadow: -4px 0 20px rgba(0,0,0,.2); }
+  .sidebar { position: fixed; top: 0; bottom: 0; right: 0; z-index: 40; transform: translateX(100%); transition: transform .22s; height: 100%; width: 220px; overflow-y: auto; }
+  .sidebar.open { transform: translateX(0); box-shadow: -4px 0 20px rgba(0,0,0,.2); }
   .scrim.show { display: block; }
   .iconbtn { display: block; }
   .mainwrap { flex: 1; min-height: 0; }
