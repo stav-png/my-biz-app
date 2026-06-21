@@ -119,9 +119,12 @@ button:focus-visible, .nav:focus-visible { outline: 2px solid var(--brand2); out
 .scrim { position: fixed; inset: 0; background: rgba(0,0,0,.35); z-index: 30; display: none; }
 
 @media (max-width: 780px) {
-  .sidebar { position: fixed; inset-block: 0; inset-inline-end: 0; z-index: 40; transform: translateX(100%); transition: transform .22s; height: 100%; }
-  .sidebar.open { transform: none; }
+  .shell { min-height: 100vh; border-radius: 0; border: none; flex-direction: column; }
+  .sidebar { position: fixed; inset-block: 0; inset-inline-end: 0; z-index: 40; transform: translateX(100%); transition: transform .22s; height: 100%; width: 220px; overflow-y: auto; }
+  .sidebar.open { transform: none; box-shadow: -4px 0 20px rgba(0,0,0,.2); }
   .scrim.show { display: block; }
   .iconbtn { display: block; }
-  .shell { min-height: 520px; }
+  .mainwrap { flex: 1; min-height: 0; }
+  .main { padding: 12px; }
+  .topbar { padding: 10px 14px; position: sticky; top: 0; z-index: 20; }
 }
