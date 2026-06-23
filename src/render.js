@@ -53,8 +53,8 @@ export function render() {
     <div class="shell">
       <aside class="sidebar ${navOpen ? 'open' : ''}">
         <div class="brand">
-          <div class="logo">${esc((S.settings.biz || 'ע')[0])}</div>
-          <div><div class="bn">${esc(S.settings.biz || 'העסק שלי')}</div><div class="bs">ניהול עבודות בנייה</div></div>
+          <div class="logo">${esc((S.settings.biz || 'ש')[0])}</div>
+          <div><div class="bn">${esc(S.settings.biz || 'שלמה טויטו')}</div><div class="bs">חישובים היפוטתיים</div></div>
         </div>
         ${NAV.map(n =>
           `<button class="nav ${view === n[0] ? 'on' : ''}" data-v="${n[0]}">

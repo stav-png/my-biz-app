@@ -3,7 +3,7 @@ import { load } from './state.js';
 import { render } from './render.js';
 import { getUser, showAuthScreen } from './auth.js';
 
-const ALLOWED_EMAILS = ['stavchacham@gmail.com'];
+const ALLOWED_EMAILS = ['shlomotvito148@gmail.com'];
 
 (async () => {
   const user = await getUser();
